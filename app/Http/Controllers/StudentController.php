@@ -90,4 +90,18 @@ class StudentController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
+    public function importBatch(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $path = $request->file('file')->store('imports');
+
+        \App\Jobs\ProcessStudentImport::dispatch($path);
+
+        return response()->json([
+            'message' => 'Import queued. Students will be added shortly.',
+        ], 202);
+    }
 }

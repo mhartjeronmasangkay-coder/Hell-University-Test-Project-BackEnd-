@@ -8,3 +8,4 @@ Route::get('/students', [StudentController::class, 'index']);
 Route::get('/students/export', [StudentController::class, 'export']);
 Route::put('/students/{id}', [StudentController::class,'update']);
 Route::delete('/students/{id}', [StudentController::class,'destroy']);
+Route::post('/students/import-batch', [StudentController::class, 'importBatch']);
