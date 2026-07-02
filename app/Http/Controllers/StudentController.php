@@ -1,8 +1,9 @@
 <?php
 namespace App\Http\Controllers;
-
 use App\Models\User;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class StudentController extends Controller
 {
@@ -17,9 +18,7 @@ class StudentController extends Controller
             'birthday'       => 'required|date',
             'contact_number' => 'required|string',
         ]);
-
         $user = User::create($request->all());
-
         return response()->json([
             'message' => 'User registered successfully',
             'user'    => $user
@@ -33,7 +32,6 @@ class StudentController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update($request->all());
-
     return response()->json([
         'message'=> 'Updated Successfully',
         'user'=> $user
@@ -46,4 +44,50 @@ class StudentController extends Controller
     return response()->json([
         'message'=> 'Student has been Kicked Out'
         ],);}
+
+    public function export()
+    {
+        $students = User::all();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header row
+        $headers = ['ID', 'Name', 'Email', 'Year Level', 'Department', 'Age', 'Birthday', 'Contact Number'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        // Bold the header row
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+
+        // Data rows
+        $row = 2;
+        foreach ($students as $student) {
+            $sheet->fromArray([
+                $student->id,
+                $student->name,
+                $student->email,
+                $student->year_level,
+                $student->department,
+                $student->age,
+                $student->birthday,
+                $student->contact_number,
+            ], null, 'A' . $row);
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'students_' . now()->format('Y-m-d_His') . '.xlsx';
+
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
 }

@@ -15,6 +15,7 @@
         "laravel/tinker": "^3.0",
         "mll-lab/laravel-graphiql": "*",
         "nuwave/lighthouse": "*",
+        "phpoffice/phpspreadsheet": "*",
         "webonyx/graphql-php": "*"
     },
     "require-dev": {
