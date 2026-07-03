@@ -1,3 +1,5 @@
+scalar Upload @scalar(class: "App\\GraphQL\\Scalars\\Upload")
+
 type Query {
     schedules: [Schedule!]! @all
     schedule(id: ID! @eq): Schedule @find
@@ -28,6 +30,8 @@ type Mutation {
     schedule_id: ID
     ): Student! @update(model: "App\\Models\\User")
 
+   importStudentsCsv(file: Upload!): ImportResult!
+        @field(resolver: "App\\GraphQL\\Mutations\\ImportStudentsCsv")
 }
 
 type Schedule {
@@ -49,3 +53,6 @@ type Student @model(class: "App\\Models\\User") {
     schedule: Schedule @belongsTo
 }
 
+type ImportResult {
+    message: String!
+}
